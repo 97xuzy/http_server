@@ -1,6 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#include <stdlib.h>
 
 /*!
 Data type for date and time
@@ -237,7 +238,57 @@ typedef struct Request
     Last-Modified:
     */
     char *last_modified;
+
+
+    /*!
+    Message Body
+    */
+    char *message_body;
 } Request;
+
+void free_request(Request *req);
+
+
+#define StatusCodeReasonPhrase_Continue "Continue"
+#define StatusCodeReasonPhrase_SwitchingProtocols "Switching Protocols"
+#define StatusCodeReasonPhrase_OK "OK"
+#define StatusCodeReasonPhrase_Created "Created"
+#define StatusCodeReasonPhrase_Accepted "Accepted"
+#define StatusCodeReasonPhrase_NonAuthoritativeInformation "Non-Authoritative Information"
+#define StatusCodeReasonPhrase_NoContent "No Content"
+#define StatusCodeReasonPhrase_ResetContent "Reset Content"
+#define StatusCodeReasonPhrase_PartialContent "Partial Content"
+#define StatusCodeReasonPhrase_MultipleChoices "Multiple Choices"
+#define StatusCodeReasonPhrase_MovedPermanently "Moved Permanently"
+#define StatusCodeReasonPhrase_Found "Found"
+#define StatusCodeReasonPhrase_SeeOther "See Other"
+#define StatusCodeReasonPhrase_NotModified "Not Modified"
+#define StatusCodeReasonPhrase_UseProxy "Use Proxy"
+#define StatusCodeReasonPhrase_TemporaryRedirect "Temporary Redirect"
+#define StatusCodeReasonPhrase_BadRequest "Bad Request"
+#define StatusCodeReasonPhrase_Unauthorized "Unauthorized"
+#define StatusCodeReasonPhrase_PaymentRequired "Payment Required"
+#define StatusCodeReasonPhrase_Forbidden "Forbidden"
+#define StatusCodeReasonPhrase_NotFound "Not Found"
+#define StatusCodeReasonPhrase_MethodNotAllowed "Method Not Allowed"
+#define StatusCodeReasonPhrase_NotAcceptable "Not Acceptable"
+#define StatusCodeReasonPhrase_ProxyAuthenticationRequired "Proxy Authentication Required"
+#define StatusCodeReasonPhrase_RequestTimeout "Request Time-out"
+#define StatusCodeReasonPhrase_Conflict "Conflict"
+#define StatusCodeReasonPhrase_Gone "Gone"
+#define StatusCodeReasonPhrase_LengthRequired "Length Required"
+#define StatusCodeReasonPhrase_PreconditionFailed "Precondition Failed"
+#define StatusCodeReasonPhrase_RequestEntityTooLarge "Request Entity Too Large"
+#define StatusCodeReasonPhrase_RequestURITooLarge "Request-URI Too Large"
+#define StatusCodeReasonPhrase_UnsupportedMediaType "Unsupported Media Type"
+#define StatusCodeReasonPhrase_RequestedRangeNotSatisfiable "Requested range not satisfiable"
+#define StatusCodeReasonPhrase_ExpectationFailed "Expectation Failed"
+#define StatusCodeReasonPhrase_InternalServerError "Internal Server Error"
+#define StatusCodeReasonPhrase_NotImplemented "Not Implemented"
+#define StatusCodeReasonPhrase_BadGateway "Bad Gateway"
+#define StatusCodeReasonPhrase_ServiceUnavailable "Service Unavailable"
+#define StatusCodeReasonPhrase_GatewayTimeOut "Gateway Time-out"
+#define StatusCodeReasonPhrase_HTTPVersionNotSupported "HTTP Version not supported"
 
 #define StatusCode_Continue 100
 #define StatusCode_SwitchingProtocols 101
@@ -280,6 +331,8 @@ typedef struct Request
 #define StatusCode_GatewayTimeOut 504
 #define StatusCode_HTTPVersionNotSupported 505
 
+
+
 /*!
 Data type for HTTP Response
 */
@@ -287,12 +340,53 @@ typedef struct Response
 {
     int protocol_version;
     int status_code;
+
+    /*!
+    General Header Fields.
+    Cache-Control:
+    */
+    char *cache_control;
+    /*!
+    General Header Fields.
+    Connection:
+    */
+    char *connection;
+    /*!
+    General Header Fields.
+    Date:
+    */
     Date date;
-    char *server_name;
-    char *content_type;
-    char *content_encoding;
-    int connection;
-    char *content;
+    /*!
+    General Header Fields.
+    Pragma:
+    */
+    char *pragma;
+    /*!
+    General Header Fields.
+    Trailer:
+    */
+    char *trailer;
+    /*!
+    General Header Fields.
+    Transfer-Encoding:
+    */
+    char *transfer_encoding;
+    /*!
+    General Header Fields.
+    Upgrade:
+    */
+    char *upgrade;
+    /*!
+    General Header Fields.
+    Via:
+    */
+    char *via;
+    /*!
+    General Header Fields.
+    Warning:
+    */
+    char *warning;
+
 
     /*!
     Response Header Field.
@@ -341,7 +435,67 @@ typedef struct Response
     char *www_authenticate;
 
 
+
+    /*!
+    Entity Header Fields.
+    Allow:
+    */
+    char *allow;
+    /*!
+    Entity Header Fields.
+    Content-Encoding:
+    */
+    char *content_encoding;
+    /*!
+    Entity Header Fields.
+    Content-Language:
+    */
+    char *content_language;
+    /*!
+    Entity Header Fields.
+    Content-Length:
+    */
+    char *content_length;
+    /*!
+    Entity Header Fields.
+    Content-Range:
+    */
+    char *content_location;
+    /*!
+    Entity Header Fields.
+    Content-MD5:
+    */
+    char *content_md5;
+    /*!
+    Entity Header Fields.
+    Content-Range:
+    */
+    char *content_range;
+    /*!
+    Entity Header Fields.
+    Content-Type:
+    */
+    char *content_type;
+    /*!
+    Entity Header Fields.
+    Expires:
+    */
+    char *expires;
+    /*!
+    Entity Header Fields.
+    Last-Modified:
+    */
+    char *last_modified;
+
+
+    /*!
+    Message Body
+    */
+    char *message_body;
+
 } Response;
+
+void free_response(Response *resp);
 
 /*
 GET /index.html HTTP/1.1
