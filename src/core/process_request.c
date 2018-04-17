@@ -1,9 +1,33 @@
 #include "process_request.h"
 
+#define FILE_REQUEST 100
+
+int classify_request(const Request *request, Response *response);
+int file_request(const Request *request, const char *web_root_path, Response *response);
+
+
+int process_request(const Request *request, Response *response)
+{
+    // Dispatch request, Invoke handler
+    switch(classify_request(request, response))
+    {
+        case FILE_REQUEST:
+            if(file_request(request, "/var/http_server/web_root", response) == -1)
+            {
+                return -1;
+            }
+            break;
+        default:
+            return -1;
+    }
+    response->status_code = StatusCode_OK;
+    return 0;
+}
+
 
 int classify_request(const Request *request, Response *response)
 {
-    return 0;
+    return FILE_REQUEST;
 }
 
 /*!
@@ -24,13 +48,13 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     filename = calloc(strlen(web_root_path) + strlen(request->path) + 5, sizeof(*filename));
     strcpy(filename, web_root_path);
     strcpy(filename + strlen(web_root_path), request->path);
-    printf("filename: \"%s\"\n", filename);
+    //printf("filename: \"%s\"\n", filename);
 
     // Open file
     fp = fopen(filename, "r");
     if(fp == NULL)
     {
-        printf("Unable to open file\n");
+        fprintf(stderr, "Unable to open file\n");
         free(filename);
         return -1;
     }
@@ -39,7 +63,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     buffer = calloc(buffer_size, sizeof(*buffer));
     if(buffer == NULL)
     {
-        printf("malloc for buffer failed\n");
+        fprintf(stderr, "malloc for buffer failed\n");
         free(filename);
         fclose(fp);
         return -1;
@@ -48,7 +72,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     char *message_body = calloc(buffer_size, sizeof(*message_body));
     if(message_body == NULL)
     {
-        printf("malloc for response->content failed\n");
+        fprintf(stderr, "malloc for response->content failed\n");
         free(buffer);
         free(filename);
         fclose(fp);
@@ -67,7 +91,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
             message_body = realloc(message_body, allocated_size);
             if(message_body == NULL)
             {
-                printf("realloc for response->message_body failed\n");
+                fprintf(stderr, "realloc for response->message_body failed\n");
                 free(buffer);
                 free(filename);
                 fclose(fp);
@@ -83,14 +107,14 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     // If error occur
     if(ferror(fp))
     {
-        printf("file error occur\n");
+        fprintf(stderr, "file error occur\n");
         free(response->message_body);
         free(buffer);
         free(filename);
         fclose(fp);
         return -1;
     }
-    printf("response->message_body: \"%s\"\n", response->message_body);
+    //printf("response->message_body: \"%s\"\n", response->message_body);
 
     free(buffer);
     free(filename);
@@ -111,7 +135,7 @@ int test_file_request()
 
     if(file_request(&request, web_root_path, &response) != 0)
     {
-        printf("file_request() failed");
+        fprintf(stderr, "file_request() failed");
         return FALSE;
     }
 }

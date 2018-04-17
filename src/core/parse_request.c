@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "utility.h"
+#include "../utility/utility.h"
 
 
 int other_lines(const char *line, char **field_name, char **field_value);
@@ -68,12 +68,11 @@ int http_request_parser(const char* request_str, Request *request)
                     }
                     if(other_lines(line, &field, &value) != 0)
                     {
-                        printf("other line fail\n");
+                        //printf("other line fail\n");
                         return -1;
                     }
                     if (read_in_field(request, field, value) == -1)
                     {
-                        //printf("Unrecognizable field\n");
                         break;
                     }
                     break;
@@ -354,7 +353,8 @@ int read_in_field(Request *request, char *field_name, char *field_value)
         // if field_name is NOT recognizable, the field is ignored,
         // hence free the memeory allocated for both field_name
         // and field_value
-        printf("Unrecognizable field: %s\n", field_name);
+
+        //printf("Unrecognizable field: %s\n", field_name);
         free(field_name);
         free(field_value);
         return -1;

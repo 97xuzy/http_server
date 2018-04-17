@@ -6,7 +6,7 @@
 #include <string.h>
 #include "http.h"
 
-int classify_request(const Request *request, Response *response);
+int process_request(const Request *request, Response *response);
 int file_request(const Request *request, const char *web_root_path, Response *response);
 
 #endif

@@ -5,10 +5,10 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include "http.h"
-#include "parse_request.h"
-#include "process_request.h"
-#include "generate_response_string.h"
+#include "core/http.h"
+#include "core/parse_request.h"
+#include "core/process_request.h"
+#include "core/generate_response_string.h"
 
 int parse_cmd_arg(int argc, char *argv[]);
 int server_socket_init(const char *ip_addr, const int port);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         // Process Request
         Response response;
         memset(&response, 0, sizeof(Response));
-        if(file_request(&request, "/tmp/http_server/web_root", &response) == -1)
+        if(process_request(&request, &response) == -1)
         {
             write(clnt_sock, error_404_response, sizeof(*error_404_response) * strlen(error_404_response));
 

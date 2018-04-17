@@ -4,20 +4,6 @@
 #include <stdlib.h>
 
 /*!
-Data type for date and time
-*/
-typedef struct Date
-{
-    int year;
-    int month;
-    int day;
-    int hr;
-    int min;
-    int sec;
-    int time_zone;
-} Date;
-
-/*!
 An enum for all the HTTP Request type/method
 */
 typedef enum RequestType
@@ -355,7 +341,7 @@ typedef struct Response
     General Header Fields.
     Date:
     */
-    Date date;
+    //Date date;
     /*!
     General Header Fields.
     Pragma:
