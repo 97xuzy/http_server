@@ -609,7 +609,7 @@ int main()
 {
     test_other_lines();
     test_first_line();
-    test_my_strncpy();
+    //test_my_strncpy();
 
     return 0;
 }
