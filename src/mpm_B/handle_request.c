@@ -1,5 +1,3 @@
-#include "handle_request.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,6 +7,7 @@
 #include <sys/epoll.h>
 #include <pthread.h>
 
+#include "handle_request.h"
 #include "../core/parse_request.h"
 #include "../core/process_request.h"
 #include "../core/generate_response_string.h"

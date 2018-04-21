@@ -19,6 +19,14 @@ typedef struct mpm_data
 mpm_data_t* init_mpm(unsigned int num_worker);
 
 /*!
+*/
+int start_mpm(mpm_data_t *data, int serv_sock);
+
+/*!
+*/
+int stop_mpm(mpm_data_t *data);
+
+/*!
     Free the mpm_data_t struct
 */
 int destory_mpm(mpm_data_t *data);

@@ -1,4 +1,5 @@
-.DEFAULT_GOAL=concurrent_http_server_B
+.DEFAULT_GOAL=B
+DEFAULT_MPM_PLAN=B
 
 
 CFLAGS=-Wall -Werror
@@ -10,11 +11,20 @@ CORE_obj=parse_request.o http.o process_request.o utility.o generate_response_st
 SP_obj=$(CORE_obj) http_server.o
 
 # Multi Process
+CONCURRENT_obj=concurrent_http_server.o libmpm.a flag.o $(CORE_obj)
+MPM_LIB_obj=mpm.o worker_process_A.o mpm_A.o handle_request.o worker_process_B.o mpm_B.o
 MPM_A_obj=worker_process_A.o mpm_A.o mpm.o
 MPM_B_obj=handle_request.o worker_process_B.o mpm_B.o mpm.o
-PLAN_A_obj=$(CORE_obj) flag.o $(MPM_A_obj) concurrent_http_server_A.o
-PLAN_B_obj=$(CORE_obj) flag.o $(MPM_B_obj) concurrent_http_server_B.o
-PLAN_C_obj=$(CORE_obj)
+
+ifeq ($(MAKECMDGOALS),A)
+MPM_PLAN=A
+else ifeq ($(MAKECMDGOALS),B)
+MPM_PLAN=B
+else ifeq ($(MAKECMDGOALS), )
+MPM_PLAN=$(DEFAULT_MPM_PLAN)
+else
+MPM_PLAN=NOT_SET
+endif
 
 # Performace test
 HTTP_PARSE_SPEED_obj=$(CORE_obj) request_parse_performance_test.o
@@ -22,20 +32,20 @@ HTTP_PARSE_SPEED_obj=$(CORE_obj) request_parse_performance_test.o
 ####################
 # Executable
 ####################
+# MPM_A
 .PHONY: A
-A: concurrent_http_server_A
-concurrent_http_server_A: $(PLAN_A_obj)
-	gcc -o concurrent_http_server_A $(CFLAGS) -lpthread $(PLAN_A_obj)
+A: concurrent_http_server
 
+# MPM_B
 .PHONY: B
-B: concurrent_http_server_B
-concurrent_http_server_B: $(PLAN_B_obj)
-	gcc -o concurrent_http_server_B $(CFLAGS) -lpthread $(PLAN_B_obj)
+B: concurrent_http_server
 
+# MPM_C
 .PHONY: C
-C: concurrent_http_server_C
-concurrent_http_server_C: $(PLAN_C_obj)
-	gcc -o concurrent_http_server_C $(CFLAGS) -lpthread $(PLAN_C_obj)
+C: concurrent_http_server
+
+concurrent_http_server: $(CONCURRENT_obj)
+	gcc -o $@ $(CFLAGS) -lpthread $^
 
 http_server: $(SP_obj)
 	gcc -o http_server $(CFLAGS) $(SP_obj)
@@ -73,6 +83,36 @@ flag.o: utility/flag.c
 request_parse_performance_test.o: code_snipet/request_parse_performance_test.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
+concurrent_http_server.o: concurrent_http_server.c
+	gcc -c $(CFLAGS) -lpthread $< -o $@
+
+
+#####################
+# libmpm
+####################
+ifeq ($(MPM_PLAN),A)
+
+mpm.o: mpm.c
+	gcc -c $(CFLAGS) -lpthread $< -o $@ -DMPM_A
+libmpm.a: $(MPM_A_obj)
+	ar rcs $@ $(MPM_A_obj)
+
+else ifeq ($(MPM_PLAN),B)
+
+mpm.o: mpm.c
+	gcc -c $(CFLAGS) -lpthread $< -o $@ -DMPM_B
+libmpm.a: $(MPM_B_obj)
+	ar rcs $@ $(MPM_B_obj)
+
+else
+
+mpm.o:
+	$(error MPM_PLAN is not set)
+libmpm.a:
+	$(error MPM_PLAN is not set)
+
+endif
+
 #
 # MPM B
 #
@@ -85,9 +125,6 @@ worker_process_B.o: mpm_B/worker_process.c
 mpm_B.o: mpm_B/mpm_B.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-concurrent_http_server_B.o: concurrent_http_server_B.c
-	gcc -c $(CFLAGS) -lpthread $< -o $@
-
 #
 # MPM A
 #
@@ -97,21 +134,15 @@ worker_process_A.o: mpm_A/worker_process_A.c
 mpm_A.o: mpm_A/mpm_A.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-mpm.o: mpm.c
-	gcc -c $(CFLAGS) -lpthread $< -o $@
-
-concurrent_http_server_A.o: concurrent_http_server_A.c
-	gcc -c $(CFLAGS) -lpthread $< -o $@
-
 
 .PHONY: clean
 clean: clean_test
-	rm -f $(SP_obj)
-	rm -f $(PLAN_A_obj) $(PLAN_B_obj) $(PLAN_C_obj)
+	rm -f $(SP_obj) $(CONCURRENT_obj)
+	rm -f $(MPM_A_obj) $(MPM_B_obj)
 	rm -f $(HTTP_PARSE_SPEED_obj)
 	rm -f request_parse_performance_test
 	rm -f http_server http_server_test
-	rm -f concurrent_http_server_A concurrent_http_server_B concurrent_http_server_C
+	rm -f libmpm.a concurrent_http_server.o concurrent_http_server
 
 ####################
 # Testing

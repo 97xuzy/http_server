@@ -6,7 +6,7 @@
 /********************
  * Worker Process
 ********************/
-int worker_process(int serv_sock, int pipe_fd[2]);
+int worker_process_A(int serv_sock, int pipe_fd[2]);
 
 
 

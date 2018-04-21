@@ -11,8 +11,8 @@
 #include "core/parse_request.h"
 #include "core/process_request.h"
 #include "core/generate_response_string.h"
+
 #include "mpm.h"
-#include "mpm_B/mpm_B.h"
 
 mpm_data_t *data;
 
@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    //config_t config;
+    //read_config(DEFAULT_CONFIG_FILE_PATH, &config);
+
     // Register Exit Handler (in case of Ctrl-C)
     signal(SIGINT, exit_handler);
 
@@ -43,7 +46,7 @@ int main(int argc, char *argv[])
     data = init_mpm(num_worker);
 
     // Launch Multi Process
-    start_mpm_B(data, serv_sock);
+    start_mpm(data, serv_sock);
 
     while (1)
     {
@@ -51,7 +54,7 @@ int main(int argc, char *argv[])
     }
 
     // Kill all worker process
-    stop_mpm_B(data);
+    stop_mpm(data);
 
     // Free resource for Multi Process
     destory_mpm(data);
@@ -66,8 +69,7 @@ int parse_cmd_arg(int argc, char *argv[])
 {
     if(argc < 2)
     {
-        fprintf(stderr, "ERROR, Need port number\n");
-        fprintf(stderr, "ERROR, ./http_server port\n");
+        fprintf(stderr, "ERROR, Need port number, e.g. ./http_server port_number\n");
         exit(-1);
     }
     int port = atoi(argv[1]);
@@ -120,7 +122,7 @@ int server_socket_init(const char *ip_addr, const int port)
 }
 
 /*!
-    Exit Handler 
+    Exit Handler, upon receive SIGINT signal 
 */
 void exit_handler(int signum)
 {

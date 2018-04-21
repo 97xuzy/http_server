@@ -13,8 +13,8 @@
 #include "mpm_A.h"
 #include "worker_process_A.h"
 
-int spawn_worker(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock);
-int destory_worker(int pid, int pipe_fd[2]);
+int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock);
+int destory_worker_A(int pid, int pipe_fd[2]);
 
 int start_mpm_A(mpm_data_t *data, int serv_sock)
 {
@@ -28,7 +28,7 @@ int start_mpm_A(mpm_data_t *data, int serv_sock)
 
 
     // Spawn worker process
-    if(spawn_worker(data->num_worker, data->worker_pid, data->to_worker_pipe, serv_sock) == -1)
+    if(spawn_worker_A(data->num_worker, data->worker_pid, data->to_worker_pipe, serv_sock) == -1)
     {
         fprintf(stderr, "spawn_worker() failed\n");
         return -1;
@@ -38,7 +38,7 @@ int start_mpm_A(mpm_data_t *data, int serv_sock)
 }
 
 
-int spawn_worker(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock)
+int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock)
 {
     // Create pipe to each worker process
     for(int i = 0; i < num_worker; i++)
@@ -71,7 +71,7 @@ int spawn_worker(const int num_worker, int *process_id, int *pipe_fd[2], int ser
         // Child
         else if(pid == 0)
         {
-            worker_process(serv_sock, pipe_fd[i]);
+            worker_process_A(serv_sock, pipe_fd[i]);
             _Exit(0);
         }
         // Parent
@@ -89,20 +89,19 @@ int stop_mpm_A(mpm_data_t *data)
 {
     for(int i = 0; i < data->num_worker; i++)
     {
-        destory_worker(data->worker_pid[i], data->to_worker_pipe[i]);
+        destory_worker_A(data->worker_pid[i], data->to_worker_pipe[i]);
     }
 
     return 0;
 }
 
-int destory_worker(int pid, int pipe_fd[2])
+int destory_worker_A(int pid, int pipe_fd[2])
 {
     char *msg = "close";
     write(pipe_fd[1], msg, (strlen(msg) + 1) * sizeof(char));
 
     return 0;
 }
-
 
 
 

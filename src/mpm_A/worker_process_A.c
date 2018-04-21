@@ -37,7 +37,7 @@ Connection threads listen for new connection, upon accpeting a new connection,
 the connection is added into the epoll.
 
 */
-int worker_process(int serv_sock, int pipe_fd[2])
+int worker_process_A(int serv_sock, int pipe_fd[2])
 {
     printf("worker - %d\n", getpid());
 
@@ -251,7 +251,6 @@ char *read_request_string(int clnt_sock)
 
     return request_str;
 }
-
 
 
 
