@@ -1,8 +1,8 @@
 #ifndef WORKER_PROCESS_H
 #define WORKER_PROCESS_H
 
-#include "../utility/flag.h"
-#include "../config.h"
+#include "../../utility/flag.h"
+#include "../../config.h"
 
 /********************
  * Worker Process

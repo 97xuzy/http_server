@@ -92,14 +92,14 @@ concurrent_http_server.o: concurrent_http_server.c
 ####################
 ifeq ($(MPM_PLAN),A)
 
-mpm.o: mpm.c
+mpm.o: mpm/mpm.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@ -DMPM_A
 libmpm.a: $(MPM_A_obj)
 	ar rcs $@ $(MPM_A_obj)
 
 else ifeq ($(MPM_PLAN),B)
 
-mpm.o: mpm.c
+mpm.o: mpm/mpm.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@ -DMPM_B
 libmpm.a: $(MPM_B_obj)
 	ar rcs $@ $(MPM_B_obj)
@@ -116,22 +116,22 @@ endif
 #
 # MPM B
 #
-handle_request.o: mpm_B/handle_request.c
+handle_request.o: mpm/B/handle_request.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-worker_process_B.o: mpm_B/worker_process_B.c
+worker_process_B.o: mpm/B/worker_process_B.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-mpm_B.o: mpm_B/mpm_B.c
+mpm_B.o: mpm/B/mpm_B.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
 #
 # MPM A
 #
-worker_process_A.o: mpm_A/worker_process_A.c
+worker_process_A.o: mpm/A/worker_process_A.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-mpm_A.o: mpm_A/mpm_A.c
+mpm_A.o: mpm/A/mpm_A.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
 

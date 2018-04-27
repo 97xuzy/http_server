@@ -12,7 +12,7 @@
 #include "core/process_request.h"
 #include "core/generate_response_string.h"
 
-#include "mpm.h"
+#include "mpm/mpm.h"
 
 mpm_data_t *data;
 

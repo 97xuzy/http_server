@@ -9,9 +9,9 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "../core/parse_request.h"
-#include "../core/process_request.h"
-#include "../core/generate_response_string.h"
+#include "../../core/parse_request.h"
+#include "../../core/process_request.h"
+#include "../../core/generate_response_string.h"
 
 
 #include "worker_process_A.h"

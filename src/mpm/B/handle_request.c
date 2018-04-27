@@ -8,9 +8,9 @@
 #include <pthread.h>
 
 #include "handle_request.h"
-#include "../core/parse_request.h"
-#include "../core/process_request.h"
-#include "../core/generate_response_string.h"
+#include "../../core/parse_request.h"
+#include "../../core/process_request.h"
+#include "../../core/generate_response_string.h"
 
 const char *error_404_response = "HTTP/1.1 404 Not Found\r\n\r\n404 Not Found\r\n";
 const char *error_500_response = "HTTP/1.1 500 Internal Server Error\r\n\r\n500 Internal Server Error\r\n";

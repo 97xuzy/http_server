@@ -1,8 +1,8 @@
 #ifndef WORKER_PROCESS_B_H
 #define WORKER_PROCESS_B_H
 
-#include "../utility/flag.h"
-#include "../config.h"
+#include "../../utility/flag.h"
+#include "../../config.h"
 
 typedef struct conn_thread
 {

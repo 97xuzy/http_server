@@ -1,9 +1,9 @@
 #include "mpm.h"
 
 #if defined(MPM_A)
-    #include "mpm_A/mpm_A.h"
+    #include "A/mpm_A.h"
 #elif defined(MPM_B)
-    #include "mpm_B/mpm_B.h"
+    #include "B/mpm_B.h"
 #else
     #error "No MPM selected"
 #endif

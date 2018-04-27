@@ -2,7 +2,7 @@
 #define MPM_H
 
 #include <stdlib.h>
-#include "config.h"
+#include "../config.h"
 
 typedef struct mpm_data
 {
