@@ -8,6 +8,16 @@
     #error "No MPM selected"
 #endif
 
+#if defined(MPM_A)
+extern int start_mpm_A(mpm_data_t *data, int serv_sock, config_t *global);
+extern int destory_worker_A(int pid, int pipe_fd[2]);
+#elif defined(MPM_B)
+extern int start_mpm_B(mpm_data_t *data, int serv_sock, config_t *global);
+extern int destory_worker_B(int pid, int pipe_fd[2]);
+#else
+    #error "No MPM selected"
+#endif
+
 /*!
     Init a mpm_data_t struct that will be passed into mpm module
 */ 
@@ -24,12 +34,12 @@ mpm_data_t* init_mpm(unsigned int num_worker)
     return ptr;
 }
 
-int start_mpm(mpm_data_t *data, int serv_sock)
+int start_mpm(mpm_data_t *data, int serv_sock, config_t *config)
 {
 #if defined(MPM_A)
-    return start_mpm_A(data, serv_sock);
+    return start_mpm_A(data, serv_sock, config);
 #elif defined(MPM_B)
-    return start_mpm_B(data, serv_sock);
+    return start_mpm_B(data, serv_sock, config);
 #else
     #error "No MPM selected"
 #endif

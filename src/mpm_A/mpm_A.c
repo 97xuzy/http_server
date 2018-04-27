@@ -13,10 +13,10 @@
 #include "mpm_A.h"
 #include "worker_process_A.h"
 
-int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock);
+int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock, config_t *global);
 int destory_worker_A(int pid, int pipe_fd[2]);
 
-int start_mpm_A(mpm_data_t *data, int serv_sock)
+int start_mpm_A(mpm_data_t *data, int serv_sock, config_t *global)
 {
     // Set server socket as non-blocking
     int flags = fcntl(serv_sock, F_GETFL, 0);
@@ -28,7 +28,7 @@ int start_mpm_A(mpm_data_t *data, int serv_sock)
 
 
     // Spawn worker process
-    if(spawn_worker_A(data->num_worker, data->worker_pid, data->to_worker_pipe, serv_sock) == -1)
+    if(spawn_worker_A(data->num_worker, data->worker_pid, data->to_worker_pipe, serv_sock, global) == -1)
     {
         fprintf(stderr, "spawn_worker() failed\n");
         return -1;
@@ -38,7 +38,7 @@ int start_mpm_A(mpm_data_t *data, int serv_sock)
 }
 
 
-int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock)
+int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int serv_sock, config_t *global)
 {
     // Create pipe to each worker process
     for(int i = 0; i < num_worker; i++)
@@ -71,7 +71,8 @@ int spawn_worker_A(const int num_worker, int *process_id, int *pipe_fd[2], int s
         // Child
         else if(pid == 0)
         {
-            worker_process_A(serv_sock, pipe_fd[i]);
+            config_t *local = copy_global_config_to_local(global);
+            worker_process_A(serv_sock, pipe_fd[i], local);
             _Exit(0);
         }
         // Parent

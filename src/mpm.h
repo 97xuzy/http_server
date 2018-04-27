@@ -2,6 +2,7 @@
 #define MPM_H
 
 #include <stdlib.h>
+#include "config.h"
 
 typedef struct mpm_data
 {
@@ -20,7 +21,7 @@ mpm_data_t* init_mpm(unsigned int num_worker);
 
 /*!
 */
-int start_mpm(mpm_data_t *data, int serv_sock);
+int start_mpm(mpm_data_t *data, int serv_sock, config_t *config);
 
 /*!
 */

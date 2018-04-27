@@ -7,7 +7,7 @@
 #include <sys/epoll.h>
 #include <pthread.h>
 
-#include "worker_process.h"
+#include "worker_process_B.h"
 
 #include "handle_request.h"
 
@@ -18,12 +18,12 @@
 
 int listen_connection(int serv_sock);
 
-int init_conn_thread(conn_thread_t *thread, int serv_sock);
+int init_conn_thread(conn_thread_t *thread, int serv_sock, config_t *local);
 int spawn_conn_thread(conn_thread_t *thread);
 void *connection_thread_func(void *conn_thrd_init_data_ptr);
 int close_conn_thread(conn_thread_t *thread);
 
-int init_request_thread(req_thread_t *thread, int conn_epoll);
+int init_request_thread(req_thread_t *thread, int conn_epoll, config_t *local);
 int spawn_request_thread(req_thread_t *thread);
 int close_request_thread(req_thread_t *thread);
 void *request_thread_func(void *data_ptr);
@@ -35,7 +35,7 @@ Connection threads listen for new connection, upon accpeting a new connection,
 the connection is added into the epoll.
 
 */
-int worker_process(int serv_sock, int pipe_fd[2])
+int worker_process_B(int serv_sock, int pipe_fd[2], config_t *local_config)
 {
     printf("worker - %d\n", getpid());
 
@@ -52,8 +52,8 @@ int worker_process(int serv_sock, int pipe_fd[2])
     conn_thread_t conn_thrd;
     req_thread_t req_thrd;
 
-    init_conn_thread(&conn_thrd, serv_sock);
-    init_request_thread(&req_thrd, conn_thrd.conn_epoll);
+    init_conn_thread(&conn_thrd, serv_sock, local_config);
+    init_request_thread(&req_thrd, conn_thrd.conn_epoll, local_config);
 
     spawn_conn_thread(&conn_thrd);
     spawn_request_thread(&req_thrd);
@@ -84,7 +84,7 @@ int listen_connection(int serv_sock)
 
 
 
-int init_conn_thread(conn_thread_t *thread, int serv_sock)
+int init_conn_thread(conn_thread_t *thread, int serv_sock, config_t *local)
 {
     memset(thread, 0, sizeof(*thread));
 
@@ -95,6 +95,7 @@ int init_conn_thread(conn_thread_t *thread, int serv_sock)
 
     thread->serv_sock = serv_sock;
     thread->conn_epoll = conn_epoll;
+    thread->local_config = local;
 
     return 0;
 }
@@ -190,12 +191,13 @@ int close_conn_thread(conn_thread_t *thread)
     return 0;
 }
 
-int init_request_thread(req_thread_t *thread, int conn_epoll)
+int init_request_thread(req_thread_t *thread, int conn_epoll, config_t *local)
 {
     memset(thread, 0, sizeof(*thread));
 
     thread->conn_epoll = conn_epoll;
     thread->event_array = calloc(MAX_EVENT_NUM, sizeof(struct epoll_event));
+    thread->local_config = local;
     init_flag(&thread->exit_flag);
 
     return 0;
@@ -246,7 +248,7 @@ void *request_thread_func(void *data_ptr)
         // for each ready socket
         for(int i = 0; i < nfds; i++) {
             int clnt_sock = events[i].data.fd;
-            handle_request(clnt_sock);
+            handle_request(clnt_sock, thread->local_config);
         }
 
         // Check for exit_flag

@@ -3,16 +3,16 @@
 #define FILE_REQUEST 100
 
 int classify_request(const Request *request, Response *response);
-int file_request(const Request *request, const char *web_root_path, Response *response);
+int file_request(const char *filename, const char *web_root_path, Response *response);
 
 
-int process_request(const Request *request, Response *response)
+int process_request(const Request *request, Response *response, const config_t *config)
 {
     // Dispatch request, Invoke handler
     switch(classify_request(request, response))
     {
         case FILE_REQUEST:
-            if(file_request(request, "/var/http_server/web_root", response) == -1)
+            if(file_request(request->path, config->web_root_path, response) == -1)
             {
                 return -1;
             }
@@ -33,29 +33,29 @@ int classify_request(const Request *request, Response *response)
 /*!
 /param web_root_path Path should NOT end with '\'
 */
-int file_request(const Request *request, const char *web_root_path, Response *response)
+int file_request(const char *filename, const char *web_root_path, Response *response)
 {
-    if(request == NULL || web_root_path == NULL || response == NULL)
+    if(filename == NULL || web_root_path == NULL || response == NULL)
     {
         return -1;
     }
     const size_t buffer_size = 32;
     FILE *fp = NULL;
-    char *filename = NULL;
+    char *path = NULL;
     char *buffer = NULL;
 
-    // Combine web_root_path and request->path to generate filename
-    filename = calloc(strlen(web_root_path) + strlen(request->path) + 5, sizeof(*filename));
-    strcpy(filename, web_root_path);
-    strcpy(filename + strlen(web_root_path), request->path);
-    //printf("filename: \"%s\"\n", filename);
+    // Combine web_root_path and file_path to generate filename
+    path = calloc(strlen(web_root_path) + strlen(filename) + 5, sizeof(*path));
+    strcpy(path, web_root_path);
+    strcpy(path+ strlen(web_root_path), filename);
+    //printf("filename: \"%s\"\n", path);
 
     // Open file
-    fp = fopen(filename, "r");
+    fp = fopen(path, "r");
     if(fp == NULL)
     {
         fprintf(stderr, "Unable to open file\n");
-        free(filename);
+        free(path);
         return -1;
     }
 
@@ -64,7 +64,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     if(buffer == NULL)
     {
         fprintf(stderr, "malloc for buffer failed\n");
-        free(filename);
+        free(path);
         fclose(fp);
         return -1;
     }
@@ -74,7 +74,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
     {
         fprintf(stderr, "malloc for response->content failed\n");
         free(buffer);
-        free(filename);
+        free(path);
         fclose(fp);
         return -1;
     }
@@ -93,7 +93,7 @@ int file_request(const Request *request, const char *web_root_path, Response *re
             {
                 fprintf(stderr, "realloc for response->message_body failed\n");
                 free(buffer);
-                free(filename);
+                free(path);
                 fclose(fp);
                 return -1;
             }
@@ -110,20 +110,44 @@ int file_request(const Request *request, const char *web_root_path, Response *re
         fprintf(stderr, "file error occur\n");
         free(response->message_body);
         free(buffer);
-        free(filename);
+        free(path);
         fclose(fp);
         return -1;
     }
     //printf("response->message_body: \"%s\"\n", response->message_body);
 
     free(buffer);
-    free(filename);
+    free(path);
     fclose(fp);
 
     return 0;
 
 }
 
+int error_in_request(int status_code, char *error_file_path, Response *response)
+{
+    if(status_code < 400)
+    {
+        return -1;
+    }
+    char filename[10];
+
+    sprintf(filename, "/%3d.html", status_code);
+
+    if(file_request(filename, error_file_path, response) == -1)
+    {
+        // If fail to read file, generating built-in error response
+        response->message_body = calloc(1, 64);
+        if(response->message_body == NULL)
+        {
+            return -1;
+        }
+        sprintf(response->message_body, "<h2>Error, %3d<h2>\r\n", status_code);
+    }
+    response->status_code = status_code;
+
+    return 0;
+}
 
 #ifdef TEST
 

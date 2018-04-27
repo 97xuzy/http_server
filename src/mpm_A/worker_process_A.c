@@ -26,7 +26,7 @@ int listen_connection(int serv_sock);
 int create_conn_epoll(int serv_sock);
 int handle_new_client_conn(int conn_epoll, int serv_sock);
 
-int handle_new_request(int clnt_sock);
+int handle_new_request(int clnt_sock, const config_t *config);
 char *read_request_string(int clnt_sock);
 
 
@@ -37,7 +37,7 @@ Connection threads listen for new connection, upon accpeting a new connection,
 the connection is added into the epoll.
 
 */
-int worker_process_A(int serv_sock, int pipe_fd[2])
+int worker_process_A(int serv_sock, int pipe_fd[2], const config_t *local_config)
 {
     printf("worker - %d\n", getpid());
 
@@ -75,7 +75,7 @@ int worker_process_A(int serv_sock, int pipe_fd[2])
             // If client socket, handle the request
             else
             {
-                handle_new_request(clnt_sock);
+                handle_new_request(clnt_sock, local_config);
             }
         }
     }
@@ -156,7 +156,7 @@ int handle_new_client_conn(int conn_epoll, int serv_sock)
     return 0;
 }
 
-int handle_new_request(int clnt_sock)
+int handle_new_request(int clnt_sock, const config_t *config)
 {
     // Read Request
     char *request_str = read_request_string(clnt_sock);
@@ -177,14 +177,15 @@ int handle_new_request(int clnt_sock)
     // Process Request
     Response response;
     memset(&response, 0, sizeof(Response));
-    if(process_request(&request, &response) == -1)
+    if(process_request(&request, &response, config) == -1)
     {
-        send(clnt_sock, error_404_response, sizeof(*error_404_response) * strlen(error_404_response), 0);
+        error_in_request(404, config->error_page_path, &response);
+        //send(clnt_sock, error_404_response, sizeof(*error_404_response) * strlen(error_404_response), 0);
 
-        free(request_str);
-        free_request(&request);
-        close(clnt_sock);
-        return 0;
+        //free(request_str);
+        //free_request(&request);
+        //close(clnt_sock);
+        //return 0;
     }
     free(request_str);
     free_request(&request);

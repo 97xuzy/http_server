@@ -17,7 +17,7 @@ const char *error_500_response = "HTTP/1.1 500 Internal Server Error\r\n\r\n500 
 
 char *read_request_string(int clnt_sock);
 
-int handle_request(int clnt_sock)
+int handle_request(int clnt_sock, config_t *config)
 {
 
     // Read Request
@@ -39,7 +39,7 @@ int handle_request(int clnt_sock)
     // Process Request
     Response response;
     memset(&response, 0, sizeof(Response));
-    if(process_request(&request, &response) == -1)
+    if(process_request(&request, &response, config) == -1)
     {
         write(clnt_sock, error_404_response, sizeof(*error_404_response) * strlen(error_404_response));
 

@@ -473,9 +473,9 @@ int http_version(const char *string)
 
 bool test_http_request_parser()
 {
-    printf("\n--------------------\n");
+    //printf("\n--------------------\n");
     printf("Test http_request_parser()\n");
-    printf("--------------------\n\n");
+    //printf("--------------------\n\n");
 
     Request req;
     memset(&req, 0, sizeof(req));
@@ -500,16 +500,16 @@ bool test_http_request_parser()
 
 bool test_other_lines()
 {
-    printf("\n--------------------\n");
+    //printf("\n--------------------\n");
     printf("Test other_line()\n");
-    printf("--------------------\n\n");
+    //printf("--------------------\n\n");
 
     Request req;
     char *field_name = NULL;
     char *field_value = NULL;
     memset(&req, 0, sizeof(req));
 
-    if(other_lines("Server: GWS/2.0\r\n", &field_name, &field_value) != 0)
+    if(other_lines("Server: GWS/2.0", &field_name, &field_value) != 0)
     {
         printf("fail to parse\n");
         return false;
@@ -531,7 +531,7 @@ bool test_other_lines()
     field_value = NULL;
     memset(&req, 0, sizeof(req));
 
-    if(other_lines("Server GWS/2.0\r\n", &field_name, &field_value) == 0)
+    if(other_lines("Server GWS/2.0", &field_name, &field_value) == 0)
     {
         printf("Should fail when no \':\', instead of success\n");
         return false;
@@ -543,14 +543,14 @@ bool test_other_lines()
 
 bool test_first_line()
 {
-    printf("\n--------------------\n");
+    //printf("\n--------------------\n");
     printf("Test first_line()\n");
-    printf("--------------------\n\n");
+    //printf("--------------------\n\n");
 
     Request req;
     memset(&req, 0, sizeof(req));
 
-    if(first_line("GET /index.html HTTP/1.1\r\n", &req) != 0)
+    if(first_line("GET /index.html HTTP/1.1", &req) != 0)
     {
         printf("fail to parse\n");
         return false;

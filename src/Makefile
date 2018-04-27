@@ -5,7 +5,7 @@ DEFAULT_MPM_PLAN=B
 CFLAGS=-Wall -Werror
 
 
-CORE_obj=parse_request.o http.o process_request.o utility.o generate_response_string.o
+CORE_obj=parse_request.o http.o process_request.o utility.o generate_response_string.o config.o
 
 # Single Process
 SP_obj=$(CORE_obj) http_server.o
@@ -119,7 +119,7 @@ endif
 handle_request.o: mpm_B/handle_request.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
-worker_process_B.o: mpm_B/worker_process.c
+worker_process_B.o: mpm_B/worker_process_B.c
 	gcc -c $(CFLAGS) -lpthread $< -o $@
 
 mpm_B.o: mpm_B/mpm_B.c
