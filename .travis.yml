@@ -1,17 +1,24 @@
 dist: trusty
 sudo: false
 language: c
+compiler: gcc
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4
       - cmake
 
+before_install:
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+install: 
+  - sudo apt-get install -qq gcc-5
+
 script:
-  - CXX=/usr/bin/g++-4 CC=/usr/bin/gcc-4 cmake -D .
+  - CXX=/usr/bin/g++-5 CC=/usr/bin/gcc-5 cmake -D .
   - cmake --build . -- -j2 
   - ctest -j2
 
