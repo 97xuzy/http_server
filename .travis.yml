@@ -18,7 +18,7 @@ install:
   - sudo apt-get install -qq gcc-5
 
 script:
-  - CXX=/usr/bin/g++-5 CC=/usr/bin/gcc-5 cmake .
+  - CC=/usr/bin/gcc-5 cmake .
   - cmake --build . -- -j2 
   - ctest -j2
 
